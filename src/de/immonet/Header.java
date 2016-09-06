@@ -101,6 +101,11 @@ public class Header {
 	}
 
 	public String convertBinaryToString(String binary) {
+
+		String[] binaryChunks = binary.split("\\s+");
+
+		for (int i = 0; i < binaryChunks.length; )
+
 		return "";
 	}
 
