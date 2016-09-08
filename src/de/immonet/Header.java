@@ -18,8 +18,7 @@ public class Header {
 	private String fragmentOffset;
 	private String ttl;
 	private String protocol;
-	private String headerChecksumString = "0";
-	private String headerChecksumBinary;
+	private String headerChecksumString;
 	private String sourceIP;
 	private String destinationIP;
 	private String ihl = "5";
@@ -27,11 +26,6 @@ public class Header {
 
 	public void setTos(String tos) {
 		this.tos = tos;
-	}
-
-
-	public void setTotalLength(String totalLength) {
-		this.totalLength = totalLength;
 	}
 
 
@@ -47,16 +41,6 @@ public class Header {
 
 	public void setTtl(String ttl) {
 		this.ttl = ttl;
-	}
-
-
-	public void setHeaderChecksumString(String headerChecksumString) {
-		this.headerChecksumString = headerChecksumString;
-	}
-
-
-	public void setHeaderChecksumBinary(String headerChecksumBinary) {
-		this.headerChecksumBinary = headerChecksumBinary;
 	}
 
 
@@ -88,9 +72,9 @@ public class Header {
 				binaryIP += addZeros(Integer.toBinaryString(Integer.valueOf(ipChunks[i])), 8);
 			}
 		}
-
 		return binaryIP;
 	}
+
 
 	public String addZeros(String input, int length) {
 		String out = "";
@@ -101,6 +85,7 @@ public class Header {
 		return out += input;
 
 	}
+
 
 	public void convertBinaryToString(String binary) {
 
@@ -115,9 +100,7 @@ public class Header {
 				stringChunks.add(convertBinary(binaryChunks[i]));
 			}
 		}
-
 		setValuesFromList(stringChunks);
-
 	}
 
 
@@ -164,6 +147,8 @@ public class Header {
 	public String printBinary() {
 		String binary = "";
 
+		headerChecksumString = createChecksum();
+
 		binary = addZeros(Integer.toBinaryString(Integer.valueOf(version)), 4);
 		binary += " " + addZeros(Integer.toBinaryString(Integer.valueOf(ihl)), 4);
 		binary += " " + addZeros(Integer.toBinaryString(Integer.valueOf(tos)), 8);
@@ -186,6 +171,8 @@ public class Header {
 
 		String header = "";
 
+		headerChecksumString = createChecksum();
+
 		header = version;
 		header += "-" + ihl;
 		header += "-" + tos;
@@ -200,5 +187,100 @@ public class Header {
 		header += "-" + destinationIP;
 
 		return header;
+	}
+
+
+	public String createChecksum() {
+
+		String binary = fillBinaryString();
+
+		String[] chunk = createSubstrings(binary);
+
+		int sum = calculateSum(chunk);
+
+		String binarySumString = Integer.toBinaryString(sum);
+
+		long checkSum = calculateChecksum(binarySumString);
+
+		binarySumString = Long.toBinaryString(checkSum);
+
+		binarySumString = flippString(binarySumString);
+
+		return binarySumString;
+	}
+
+
+	private long calculateChecksum(String binarySumString) {
+		String[] sumChunk = new String[2];
+		sumChunk[0] = binarySumString.substring(0, 4);
+		sumChunk[1] = binarySumString.substring(4, binarySumString.length());
+
+		return Long.valueOf(sumChunk[0], 2) + Long.valueOf(sumChunk[1], 2);
+	}
+
+
+	private int calculateSum(String[] chunk) {
+		int sum = 0;
+		String binarySum;
+		for (int i = 0; i < chunk.length; i++) {
+			sum += Integer.valueOf(chunk[i], 2);
+			binarySum = Integer.toBinaryString(sum);
+			sum = Integer.valueOf(binarySum, 2);
+		}
+		return sum;
+	}
+
+
+	private String[] createSubstrings(String binary) {
+		String[] chunk = new String[9];
+
+		chunk[0] = binary.substring(0, 16);
+		chunk[1] = binary.substring(16, 32);
+		chunk[2] = binary.substring(32, 48);
+		chunk[3] = binary.substring(48, 64);
+		chunk[4] = binary.substring(64, 80);
+		chunk[5] = binary.substring(80, 96);
+		chunk[6] = binary.substring(96, 112);
+		chunk[7] = binary.substring(112, 128);
+		chunk[8] = binary.substring(128, 144);
+
+		return chunk;
+	}
+
+
+	private String fillBinaryString() {
+		String binary = "";
+
+		headerChecksumString = "011110000000";
+
+		binary = addZeros(Integer.toBinaryString(Integer.valueOf(version)), 4);
+		binary += addZeros(Integer.toBinaryString(Integer.valueOf(ihl)), 4);
+		binary += addZeros(Integer.toBinaryString(Integer.valueOf(tos)), 8);
+		binary += addZeros(Integer.toBinaryString(Integer.valueOf(totalLength)), 16);
+		binary += addZeros(Integer.toBinaryString(Integer.valueOf(identification)), 16);
+		binary += flags;
+		binary += addZeros(Integer.toBinaryString(Integer.valueOf(fragmentOffset)), 13);
+		binary += addZeros(Integer.toBinaryString(Integer.valueOf(ttl)), 8);
+		binary += addZeros(Integer.toBinaryString(Integer.valueOf(protocol)), 8);
+		binary += ipToBinary(sourceIP);
+		binary += ipToBinary(destinationIP);
+		binary += headerChecksumString;
+
+		return binary;
+	}
+
+
+	private String flippString(String toFlip) {
+		String flippedString = "";
+
+		for (int j = 0; j < toFlip.length(); j++) {
+			if (toFlip.charAt(j) == '0') {
+				flippedString += "1";
+			}
+			else {
+				flippedString += "0";
+			}
+		}
+		return flippedString;
 	}
 }
