@@ -20,7 +20,7 @@ public class Main {
 		if (option.equals("1")) {
 			System.out.println("Bitte geben Sie den Binärcode ein. Achten Sie darauf, dass die einzelnen Felder durch Leerzeichen voneinander getrennt sind:");
 			header.convertBinaryToString(sc.nextLine());
-			System.out.println(header.printHeader());
+			System.out.println(header.printString());
 
 		}
 		if (option.equals("2")) {
@@ -38,7 +38,7 @@ public class Main {
 			header.setDestinationIP(sc.nextLine());
 
 			System.out.println(header.printBinary());
-			System.out.println(header.printHeader());
+			System.out.println(header.printString());
 		}
 
 
