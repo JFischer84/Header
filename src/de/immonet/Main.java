@@ -45,8 +45,6 @@ public class Main {
 			System.out.println(header.printStringHeader());
 		}
 
-
-
 		sc.close();
 
 	}
