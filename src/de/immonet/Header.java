@@ -71,7 +71,7 @@ public class Header {
 	}
 
 
-	//Splits the IP String at the dot and uses the convertStringToBinary method to convert it to binary
+	// Splits the IP String at the dot and uses the convertStringToBinary method to convert it to binary
 	private String ipToBinary(String ip) {
 		String binaryIP = "";
 		String[] ipChunks = ip.split("\\.");
@@ -84,8 +84,10 @@ public class Header {
 	}
 
 
-	//Takes a given String and converts it into Binary. It uses the addZeros method to add
-	//zeros in front of the value, if it does not match the given length
+	/*
+	Takes a given String and converts it into Binary. It uses the addZeros method to add
+	zeros in front of the value, if it does not match the given length
+	*/
 	private String convertStringToBinary(String input, int length) {
 		input = Integer.toBinaryString(Integer.valueOf(input));
 		String out = "";
@@ -95,7 +97,7 @@ public class Header {
 	}
 
 
-	//Adds zeros to a given String, if it does not match the given length
+	// Adds zeros to a given String, if it does not match the given length
 	private String addZeros(String input, int length) {
 		String out = "";
 		length = length - input.length();
@@ -130,7 +132,7 @@ public class Header {
 	}
 
 
-	//Splits the binary IP in eight bit values, converts it to decimal and adds a dot after each eight bit chunk
+	// Splits the binary IP in eight bit values, converts it to decimal and adds a dot after each eight bit chunk
 	private String convertBinaryIPToString(String binaryChunk) {
 		String[] ipChunk = new String[4];
 		ipChunk[0] = binaryChunk.substring(0, 8);
@@ -149,14 +151,14 @@ public class Header {
 	}
 
 
-	//Converts a binary String to a decimal String
+	// Converts a binary String to a decimal String
 	private String convertBinaryToDecimal(String binary) {
 		int decimal = Integer.parseInt(binary, 2);
 		return Integer.toString(decimal);
 	}
 
 
-	//Sets the Variables from the list given as parameter
+	// Sets the Variables from the list given as parameter
 	private void setVariablesFromList(List<String> stringChunks) {
 		version = stringChunks.get(0);
 		ihl = stringChunks.get(1);
@@ -243,7 +245,7 @@ public class Header {
 	}
 
 
-	//Calculates the Checksum by adding the first four bits of the sum to the rest
+	// Calculates the Checksum by adding the first four bits of the sum to the rest
 	private long calculateChecksum(String binarySumString) {
 		String[] sumChunk = new String[2];
 		sumChunk[0] = binarySumString.substring(0, 4);
@@ -253,7 +255,7 @@ public class Header {
 	}
 
 
-	//Calculates the sum of all sixteen bit chunks from the header
+	// Calculates the sum of all sixteen bit chunks from the header
 	private int calculateSumOffAllChunks(String[] chunk) {
 		int sum = 0;
 		for (int i = 0; i < chunk.length; i++) {
@@ -263,7 +265,7 @@ public class Header {
 	}
 
 
-	//Creates a String array with all ten sixteen bit parts from the header
+	// Creates a String array with all ten sixteen bit parts from the header
 	private String[] createSubstrings(String binary) {
 		String[] chunk = new String[10];
 
@@ -282,7 +284,7 @@ public class Header {
 	}
 
 
-	//Returns the header as one big binary String
+	// Returns the header as one big binary String
 	private String fillBinaryString() {
 		String binary = "";
 
@@ -303,7 +305,7 @@ public class Header {
 	}
 
 
-	//Flipps the zeros and ones in a binary String
+	// Flips the zeros and ones in a binary String
 	private String flippString(String toFlip) {
 		String flippedString = "";
 
