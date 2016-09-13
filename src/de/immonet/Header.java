@@ -18,9 +18,7 @@ public class Header {
 	private String fragmentOffset;
 	private String ttl;
 	private String protocol;
-
 	private String headerChecksumString;
-
 	private String sourceIP;
 	private String destinationIP;
 	private String ihl;
