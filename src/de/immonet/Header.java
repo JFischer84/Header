@@ -12,16 +12,23 @@ public class Header {
 
 	private String version;
 	private String tos;
-	private String totalLength = "5";
+	private String totalLength;
 	private String identification;
 	private String flags;
 	private String fragmentOffset;
 	private String ttl;
 	private String protocol;
+
 	private String headerChecksumString;
+
 	private String sourceIP;
 	private String destinationIP;
-	private String ihl = "5";
+	private String ihl;
+
+
+	public String getHeaderChecksumString() {
+		return headerChecksumString;
+	}
 
 
 	public void setTos(String tos) {
@@ -58,6 +65,9 @@ public class Header {
 		version = "4";
 		identification = "0";
 		protocol = "0";
+		headerChecksumString = "0000000000000000";
+		totalLength = "5";
+		ihl = "5";
 	}
 
 
@@ -69,22 +79,29 @@ public class Header {
 				binaryIP += Integer.toBinaryString(Integer.valueOf(ipChunks[i]));
 			}
 			else {
-				binaryIP += convertToBinary(ipChunks[i], 8);
+				binaryIP += convertStringToBinary(ipChunks[i], 8);
 			}
 		}
 		return binaryIP;
 	}
 
 
-	public String convertToBinary(String input, int length) {
-		String out = "";
+	private String convertStringToBinary(String input, int length) {
 		input = Integer.toBinaryString(Integer.valueOf(input));
+		String out = "";
+		out = addZeros(input, length);
+		return out;
+
+	}
+
+
+	private String addZeros(String input, int length) {
+		String out = "";
 		length = length - input.length();
 		for (int i = 0; i < length; i++) {
 			out += "0";
 		}
 		return out += input;
-
 	}
 
 
@@ -98,7 +115,7 @@ public class Header {
 				stringChunks.add(convertIPBinary(binaryChunks[i]));
 			}
 			else {
-				stringChunks.add(convertBinary(binaryChunks[i]));
+				stringChunks.add(convertBinaryToDecimal(binaryChunks[i]));
 			}
 		}
 		setValuesFromList(stringChunks);
@@ -114,7 +131,7 @@ public class Header {
 		String currentIPString = "";
 
 		for (int j = 0; j < ipChunk.length; j++) {
-			currentIPString += convertBinary(ipChunk[j]);
+			currentIPString += convertBinaryToDecimal(ipChunk[j]);
 			if (j < ipChunk.length - 1) {
 				currentIPString += ".";
 			}
@@ -123,7 +140,7 @@ public class Header {
 	}
 
 
-	private String convertBinary(String binary) {
+	private String convertBinaryToDecimal(String binary) {
 		int decimal = Integer.parseInt(binary, 2);
 		return Integer.toString(decimal);
 	}
@@ -135,7 +152,7 @@ public class Header {
 		tos = stringChunks.get(2);
 		totalLength = stringChunks.get(3);
 		identification = stringChunks.get(4);
-		flags = convertToBinary(stringChunks.get(5), 3);
+		flags = convertStringToBinary(stringChunks.get(5), 3);
 		fragmentOffset = stringChunks.get(6);
 		ttl = stringChunks.get(7);
 		protocol = stringChunks.get(8);
@@ -145,20 +162,18 @@ public class Header {
 	}
 
 
-	public String printBinary() {
+	public String printBinaryHeader() {
 		String binary = "";
 
-		headerChecksumString = createChecksum();
-
-		binary = convertToBinary(version, 4);
-		binary += " " + convertToBinary(ihl, 4);
-		binary += " " + convertToBinary(tos, 8);
-		binary += " " + convertToBinary(totalLength, 16);
-		binary += " " + convertToBinary(identification, 16);
+		binary = convertStringToBinary(version, 4);
+		binary += " " + convertStringToBinary(ihl, 4);
+		binary += " " + convertStringToBinary(tos, 8);
+		binary += " " + convertStringToBinary(totalLength, 16);
+		binary += " " + convertStringToBinary(identification, 16);
 		binary += " " + flags;
-		binary += " " + convertToBinary(fragmentOffset, 13);
-		binary += " " + convertToBinary(ttl, 8);
-		binary += " " + convertToBinary(protocol, 8);
+		binary += " " + convertStringToBinary(fragmentOffset, 13);
+		binary += " " + convertStringToBinary(ttl, 8);
+		binary += " " + convertStringToBinary(protocol, 8);
 		binary += " " + headerChecksumString;
 		binary += " " + ipToBinary(sourceIP);
 		binary += " " + ipToBinary(destinationIP);
@@ -168,11 +183,9 @@ public class Header {
 	}
 
 
-	public String printString() {
+	public String printStringHeader() {
 
 		String header = "";
-
-		headerChecksumString = createChecksum();
 
 		header = version;
 		header += "-" + ihl;
@@ -191,23 +204,18 @@ public class Header {
 	}
 
 
-	public String createChecksum() {
+	public void createChecksum() {
 
 		String binary = fillBinaryString();
-
 		String[] chunk = createSubstrings(binary);
-
 		int sum = calculateSum(chunk);
-
 		String binarySumString = Integer.toBinaryString(sum);
-
 		long checkSum = calculateChecksum(binarySumString);
 
 		binarySumString = Long.toBinaryString(checkSum);
-
+		binarySumString = addZeros(binarySumString, 16);
 		binarySumString = flippString(binarySumString);
-
-		return binarySumString;
+		headerChecksumString = binarySumString;
 	}
 
 
@@ -222,18 +230,15 @@ public class Header {
 
 	private int calculateSum(String[] chunk) {
 		int sum = 0;
-		String binarySum;
 		for (int i = 0; i < chunk.length; i++) {
 			sum += Integer.valueOf(chunk[i], 2);
-			binarySum = Integer.toBinaryString(sum);
-			sum = Integer.valueOf(binarySum, 2);
 		}
 		return sum;
 	}
 
 
 	private String[] createSubstrings(String binary) {
-		String[] chunk = new String[9];
+		String[] chunk = new String[10];
 
 		chunk[0] = binary.substring(0, 16);
 		chunk[1] = binary.substring(16, 32);
@@ -244,6 +249,7 @@ public class Header {
 		chunk[6] = binary.substring(96, 112);
 		chunk[7] = binary.substring(112, 128);
 		chunk[8] = binary.substring(128, 144);
+		chunk[9] = binary.substring(144, 160);
 
 		return chunk;
 	}
@@ -252,17 +258,15 @@ public class Header {
 	private String fillBinaryString() {
 		String binary = "";
 
-		headerChecksumString = "011110000000";
-
-		binary = convertToBinary(version, 4);
-		binary += convertToBinary(ihl, 4);
-		binary += convertToBinary(tos, 8);
-		binary += convertToBinary(totalLength, 16);
-		binary += convertToBinary(identification, 16);
+		binary = convertStringToBinary(version, 4);
+		binary += convertStringToBinary(ihl, 4);
+		binary += convertStringToBinary(tos, 8);
+		binary += convertStringToBinary(totalLength, 16);
+		binary += convertStringToBinary(identification, 16);
 		binary += flags;
-		binary += convertToBinary(fragmentOffset, 13);
-		binary += convertToBinary(ttl, 8);
-		binary += convertToBinary(protocol, 8);
+		binary += convertStringToBinary(fragmentOffset, 13);
+		binary += convertStringToBinary(ttl, 8);
+		binary += convertStringToBinary(protocol, 8);
 		binary += ipToBinary(sourceIP);
 		binary += ipToBinary(destinationIP);
 		binary += headerChecksumString;

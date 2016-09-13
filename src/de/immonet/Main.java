@@ -20,7 +20,7 @@ public class Main {
 		if (option.equals("1")) {
 			System.out.println("Bitte geben Sie den Binärcode ein. Achten Sie darauf, dass die einzelnen Felder durch Leerzeichen voneinander getrennt sind:");
 			header.convertBinaryToString(sc.nextLine());
-			System.out.println(header.printString());
+			System.out.println(header.printStringHeader());
 
 		}
 		if (option.equals("2")) {
@@ -37,8 +37,12 @@ public class Main {
 			System.out.println("Bitte geben Sie die Werte für die Ziel-IP ein: ");
 			header.setDestinationIP(sc.nextLine());
 
-			System.out.println(header.printBinary());
-			System.out.println(header.printString());
+			header.createChecksum();
+
+			System.out.println("Checksum: " + header.getHeaderChecksumString());
+
+			System.out.println(header.printBinaryHeader());
+			System.out.println(header.printStringHeader());
 		}
 
 
