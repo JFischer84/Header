@@ -6,6 +6,8 @@ import java.util.List;
 
 
 /**
+ * This Class holds the data for an IPv4 Header and implements Methods for calculation
+ * and printing purposes
  * Created by jfische1 and lstoecke on 05.09.16.
  */
 public class Header {
@@ -69,21 +71,20 @@ public class Header {
 	}
 
 
+	//Splits the IP String at the dot and uses the convertStringToBinary method to convert it to binary
 	private String ipToBinary(String ip) {
 		String binaryIP = "";
 		String[] ipChunks = ip.split("\\.");
+
 		for (int i = 0; i < ipChunks.length; i++) {
-			if (Integer.toBinaryString(Integer.valueOf(ipChunks[i])).length() == 8) {
-				binaryIP += Integer.toBinaryString(Integer.valueOf(ipChunks[i]));
-			}
-			else {
-				binaryIP += convertStringToBinary(ipChunks[i], 8);
-			}
+			binaryIP += convertStringToBinary(ipChunks[i], 8);
 		}
+
 		return binaryIP;
 	}
 
-
+	//Takes a given String and converts it into Binary. It uses the addZeros method to add
+	//zeros in front of the value, if it does not match the given length
 	private String convertStringToBinary(String input, int length) {
 		input = Integer.toBinaryString(Integer.valueOf(input));
 		String out = "";
@@ -92,7 +93,7 @@ public class Header {
 
 	}
 
-
+	//Adds zeros to a given String, if it does not match the given length
 	private String addZeros(String input, int length) {
 		String out = "";
 		length = length - input.length();
@@ -103,6 +104,13 @@ public class Header {
 	}
 
 
+	/**
+	 * Splits a Binary String on the Space and converts it into decimal values, saves them in an array
+	 * and passes it to the setVariablesFromList method.
+	 *
+	 * @param binary - be careful to leave blankets in the string according to the
+	 *               scheme: A space after each value.
+	 */
 	public void convertBinaryToString(String binary) {
 
 		String[] binaryChunks = binary.split("\\s+");
@@ -110,17 +118,17 @@ public class Header {
 
 		for (int i = 0; i < binaryChunks.length; i++) {
 			if (binaryChunks[i].length() > 16) {
-				stringChunks.add(convertIPBinary(binaryChunks[i]));
+				stringChunks.add(convertBinaryIPToString(binaryChunks[i]));
 			}
 			else {
 				stringChunks.add(convertBinaryToDecimal(binaryChunks[i]));
 			}
 		}
-		setValuesFromList(stringChunks);
+		setVariablesFromList(stringChunks);
 	}
 
-
-	private String convertIPBinary(String binaryChunk) {
+	//Splits the binary IP in eight bit values, converts it to decimal and adds a dot after each eight bit chunk
+	private String convertBinaryIPToString(String binaryChunk) {
 		String[] ipChunk = new String[4];
 		ipChunk[0] = binaryChunk.substring(0, 8);
 		ipChunk[1] = binaryChunk.substring(8, 16);
@@ -137,14 +145,15 @@ public class Header {
 		return currentIPString;
 	}
 
-
+	//Converts a binary String to a decimal String
 	private String convertBinaryToDecimal(String binary) {
 		int decimal = Integer.parseInt(binary, 2);
 		return Integer.toString(decimal);
 	}
 
 
-	private void setValuesFromList(List<String> stringChunks) {
+	//Sets the Variables from the list given as parameter
+	private void setVariablesFromList(List<String> stringChunks) {
 		version = stringChunks.get(0);
 		ihl = stringChunks.get(1);
 		tos = stringChunks.get(2);
@@ -154,12 +163,17 @@ public class Header {
 		fragmentOffset = stringChunks.get(6);
 		ttl = stringChunks.get(7);
 		protocol = stringChunks.get(8);
-		headerChecksumString = stringChunks.get(9);
+		headerChecksumString = convertStringToBinary(stringChunks.get(9), 16);
 		sourceIP = stringChunks.get(10);
 		destinationIP = stringChunks.get(11);
 	}
 
 
+	/**
+	 * Returns the IPv4 Header as a binary String with spaces between each value.
+	 *
+	 * @return - the Header as binary String
+	 */
 	public String printBinaryHeader() {
 		String binary = "";
 
@@ -181,6 +195,11 @@ public class Header {
 	}
 
 
+	/**
+	 * Returns the IPv4 Header as a String.
+	 *
+	 * @return - the Header as a String
+	 */
 	public String printStringHeader() {
 
 		String header = "";
@@ -202,11 +221,14 @@ public class Header {
 	}
 
 
+	/**
+	 * Creates the Checksum for a given IPv4 Header.
+	 */
 	public void createChecksum() {
 
 		String binary = fillBinaryString();
 		String[] chunk = createSubstrings(binary);
-		int sum = calculateSum(chunk);
+		int sum = calculateSumOffAllChunks(chunk);
 		String binarySumString = Integer.toBinaryString(sum);
 		long checkSum = calculateChecksum(binarySumString);
 
@@ -216,7 +238,7 @@ public class Header {
 		headerChecksumString = binarySumString;
 	}
 
-
+	//Calculates the Checksum by adding the first four bits of the sum to the rest
 	private long calculateChecksum(String binarySumString) {
 		String[] sumChunk = new String[2];
 		sumChunk[0] = binarySumString.substring(0, 4);
@@ -225,8 +247,8 @@ public class Header {
 		return Long.valueOf(sumChunk[0], 2) + Long.valueOf(sumChunk[1], 2);
 	}
 
-
-	private int calculateSum(String[] chunk) {
+	//Calculates the sum of all sixteen bit chunks from the header
+	private int calculateSumOffAllChunks(String[] chunk) {
 		int sum = 0;
 		for (int i = 0; i < chunk.length; i++) {
 			sum += Integer.valueOf(chunk[i], 2);
@@ -234,7 +256,7 @@ public class Header {
 		return sum;
 	}
 
-
+	//Creates a String array with all ten sixteen bit parts from the header
 	private String[] createSubstrings(String binary) {
 		String[] chunk = new String[10];
 
@@ -252,7 +274,7 @@ public class Header {
 		return chunk;
 	}
 
-
+	//Returns the header as one big binary String
 	private String fillBinaryString() {
 		String binary = "";
 
@@ -272,7 +294,7 @@ public class Header {
 		return binary;
 	}
 
-
+	//Flipps the zeros and ones in a binary String
 	private String flippString(String toFlip) {
 		String flippedString = "";
 
