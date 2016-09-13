@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * This Class holds the data for an IPv4 Header and implements Methods for calculation
- * and printing purposes
+ * and printing purposes.
  * Created by jfische1 and lstoecke on 05.09.16.
  */
 public class Header {
