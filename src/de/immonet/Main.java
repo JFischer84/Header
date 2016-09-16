@@ -11,7 +11,7 @@ public class Main {
 		Header header = new Header();
 		Scanner sc = new Scanner(System.in);
 
-		System.out.println("Willkommen beim IPv4-Header-Generator (und alle so yeah...).");
+		System.out.println("Willkommen beim IPv4-Header-Generator.");
 		System.out.println("Wählen Sie eine der folgenden Eingabeoptionen:");
 		System.out.println("(1) Eingabe eines IPv4 Headers als Binärcode, Ausgabe erfolgt als Dezimal-String (Flags und Checksum werden immer in Binär ausgegeben)");
 		System.out.println("(2) Eingabe der einzelnen Werte eines IPv4 Headers als String, Ausgabe erfolgt als Dezimal-String & als Binärcode (Flags und Checksum werden immer in Binär ausgegeben)");
