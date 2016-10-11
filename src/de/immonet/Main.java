@@ -13,8 +13,8 @@ public class Main {
 
 		System.out.println("Willkommen beim IPv4-Header-Generator.");
 		System.out.println("Wählen Sie eine der folgenden Eingabeoptionen:");
-		System.out.println("(1) Eingabe eines IPv4 Headers als Binärcode, Ausgabe erfolgt als Dezimal-String (Flags und Checksum werden immer in Binär ausgegeben)");
-		System.out.println("(2) Eingabe der einzelnen Werte eines IPv4 Headers als String, Ausgabe erfolgt als Dezimal-String & als Binärcode (Flags und Checksum werden immer in Binär ausgegeben)");
+		System.out.println("(1) Eingabe eines IPv4 Headers als Binärcode, Ausgabe erfolgt als Dezimal-String (Flags und Checksum werden immer in Binär ausgegeben).");
+		System.out.println("(2) Eingabe der einzelnen Werte eines IPv4 Headers als String, Ausgabe erfolgt als Dezimal-String & als Binärcode (Flags und Checksum werden immer in Binär ausgegeben).");
 
 		String option = sc.nextLine();
 		if (option.equals("1")) {
@@ -39,7 +39,7 @@ public class Main {
 
 			header.createChecksum();
 
-			System.out.println("Checksum: " + header.getHeaderChecksumString());
+			System.out.println("Checksum: " + header.getHeaderChecksum());
 
 			System.out.println(header.printBinaryHeader());
 			System.out.println(header.printStringHeader());

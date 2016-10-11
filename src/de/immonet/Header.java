@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class Header {
 
+	//The different Attributes for the IPv4 header as String because we read them in from the console
 	private String version;
 	private String tos;
 	private String totalLength;
@@ -20,14 +21,14 @@ public class Header {
 	private String fragmentOffset;
 	private String ttl;
 	private String protocol;
-	private String headerChecksumString;
+	private String headerChecksum;
 	private String sourceIP;
 	private String destinationIP;
 	private String ihl;
 
 
-	public String getHeaderChecksumString() {
-		return headerChecksumString;
+	public String getHeaderChecksum() {
+		return headerChecksum;
 	}
 
 
@@ -65,7 +66,7 @@ public class Header {
 		version = "4";
 		identification = "0";
 		protocol = "0";
-		headerChecksumString = "0000000000000000";
+		headerChecksum = "0000000000000000";
 		totalLength = "5";
 		ihl = "5";
 	}
@@ -169,7 +170,7 @@ public class Header {
 		fragmentOffset = stringChunks.get(6);
 		ttl = stringChunks.get(7);
 		protocol = stringChunks.get(8);
-		headerChecksumString = convertStringToBinary(stringChunks.get(9), 16);
+		headerChecksum = convertStringToBinary(stringChunks.get(9), 16);
 		sourceIP = stringChunks.get(10);
 		destinationIP = stringChunks.get(11);
 	}
@@ -192,7 +193,7 @@ public class Header {
 		binary += " " + convertStringToBinary(fragmentOffset, 13);
 		binary += " " + convertStringToBinary(ttl, 8);
 		binary += " " + convertStringToBinary(protocol, 8);
-		binary += " " + headerChecksumString;
+		binary += " " + headerChecksum;
 		binary += " " + ipToBinary(sourceIP);
 		binary += " " + ipToBinary(destinationIP);
 
@@ -219,7 +220,7 @@ public class Header {
 		header += "-" + fragmentOffset;
 		header += "-" + ttl;
 		header += "-" + protocol;
-		header += "-" + headerChecksumString;
+		header += "-" + headerChecksum;
 		header += "-" + sourceIP;
 		header += "-" + destinationIP;
 
@@ -236,22 +237,26 @@ public class Header {
 		String[] chunk = createSubstrings(binary);
 		int sum = calculateSumOffAllChunks(chunk);
 		String binarySumString = Integer.toBinaryString(sum);
-		long checkSum = calculateChecksum(binarySumString);
+		long checkSum = calculateCarrybit(binarySumString);
 
 		binarySumString = Long.toBinaryString(checkSum);
 		binarySumString = addZeros(binarySumString, 16);
 		binarySumString = flippString(binarySumString);
-		headerChecksumString = binarySumString;
+		headerChecksum = binarySumString;
 	}
 
 
-	// Calculates the Checksum by adding the first four bits of the sum to the rest
-	private long calculateChecksum(String binarySumString) {
-		String[] sumChunk = new String[2];
-		sumChunk[0] = binarySumString.substring(0, 4);
-		sumChunk[1] = binarySumString.substring(4, binarySumString.length());
-
-		return Long.valueOf(sumChunk[0], 2) + Long.valueOf(sumChunk[1], 2);
+	// Calculates if the checksum has 17 digits and adds the first 1 to the rest if this is the case
+	private long calculateCarrybit(String binarySumString) {
+		long checkSum = 0;
+		while (binarySumString.length() > 16) {
+			String[] sumChunk = new String[2];
+			sumChunk[0] = binarySumString.substring(1, binarySumString.length());
+			sumChunk[1] = binarySumString.substring(0, 1);
+			checkSum = Long.valueOf(convertBinaryToDecimal(sumChunk[0])) + Long.valueOf(sumChunk[1]);
+			binarySumString = Long.toBinaryString(checkSum);
+		}
+		return checkSum;
 	}
 
 
@@ -299,7 +304,7 @@ public class Header {
 		binary += convertStringToBinary(protocol, 8);
 		binary += ipToBinary(sourceIP);
 		binary += ipToBinary(destinationIP);
-		binary += headerChecksumString;
+		binary += headerChecksum;
 
 		return binary;
 	}
